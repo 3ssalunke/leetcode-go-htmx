@@ -1,0 +1,40 @@
+:root {
+  --color-1: #455a64;
+  --color-2: #bdbdbd;
+}
+
+html {
+  font-family: sans-serif;
+  line-height: 1.15;
+}
+
+main {
+  background: rgba(158, 158, 158, 0.3);
+  height: 100vh;
+}
+
+/* .home-main,
+.signin-main {
+  margin-top: 100px;
+} */
+
+.sign-in-box {
+  width: 400px;
+  padding: 40px 0 33px 0;
+  border-radius: 3px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #eeeeee;
+  margin: 10px auto;
+}
+
+.bg-color-1 {
+  background: var(--color-1);
+}
+
+.text-color-1 {
+  color: var(--color-1);
+}
+
+.text-color-2 {
+  color: var(--color-2);
+}
