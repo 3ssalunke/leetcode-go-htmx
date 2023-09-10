@@ -1,0 +1,18 @@
+{{define "main"}}
+<main class="signin-main h-full">
+  <div class="grid place-items-center">
+    <div class="bg-white sign-in-box">
+      <div class="max-w-xs my-0 mx-auto">
+        <div class="grid place-items-center mb-9">
+          <img src="/static/images/logo-2.svg" alt="LeetCode" class="h-20" />
+        </div>
+        {{template "auth_form" .}}
+        <div class="mt-5 mx-auto flex flex-col justify-center items-center">
+          <span class="text-sm text-color-2">or you can sign in with</span>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{{end}}

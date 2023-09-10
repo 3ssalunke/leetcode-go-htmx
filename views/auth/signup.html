@@ -1,0 +1,61 @@
+<div id="signUpFormContainer" class="flex flex-col gap-y-5">
+  <form
+    class="flex flex-col gap-y-5"
+    hx-post="/signup"
+    hx-swap="outerHTML"
+    hx-target="#signUpFormContainer"
+    hx-swap="none"
+  >
+    <input
+      class="py-2 px-3 w-full box-border border rounded-sm font-light text-sm text-ellipsis"
+      type="text"
+      name="username"
+      placeholder="Username"
+      required
+      min="3"
+    />
+    <input
+      class="py-2 px-3 w-full box-border border rounded-sm font-light text-sm text-ellipsis"
+      type="email"
+      name="email"
+      placeholder="Email"
+      required
+    />
+    <input
+      class="py-2 px-3 w-full box-border border rounded-sm font-light text-sm text-ellipsis"
+      type="password"
+      name="password"
+      placeholder="Password"
+      required
+      min="8"
+    />
+    <input
+      class="py-2 px-3 w-full box-border border rounded-sm font-light text-sm text-ellipsis"
+      type="password"
+      name="confirmPassword"
+      placeholder="Confirm Password"
+      required
+      min="8"
+    />
+    {{with .Message }}
+    <p class="px-1 text-red-500 text-xs">{{.}}</p>
+    {{end}}
+    <button
+      class="px-3 border-0 h-10 w-full bg-color-1 text-white"
+      type="submit"
+    >
+      Sign Up
+    </button>
+  </form>
+  <p class="flex items-center justify-center text-color-2 text-sm">
+    Have an account?&nbsp;
+    <a
+      class="cursor-pointer text-color-1"
+      hx-get="/signin"
+      hx-swap="outerHTML"
+      hx-target="body"
+      hx-trigger="click"
+      >Sign In</a
+    >
+  </p>
+</div>
