@@ -56,8 +56,8 @@ func (server *Server) setupRoutes() *mux.Router {
 	r.Use(util.LoggerMiddleware)
 
 	r.HandleFunc("/", server.home).Methods("GET")
-	r.HandleFunc("/signin", server.signIn).Methods("GET", "POST")
-	r.HandleFunc("/signup", server.signUp).Methods("GET", "POST")
+	r.HandleFunc("accounts/signin", server.signIn).Methods("GET", "POST")
+	r.HandleFunc("accounts/signup", server.signUp).Methods("GET", "POST")
 
 	return r
 }

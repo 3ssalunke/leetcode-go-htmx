@@ -35,31 +35,38 @@ func (server *Server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var data struct {
+		Title  string
+		UserID string
+		User   *db.User
+	}
+	data.Title = "LeetCode - The World's Leading Programming Learning Platform"
+
 	jwtToken, err := util.ExtractCookieFromHeader(r)
 	if err != nil {
 		log.Printf("failed to extract cookie from request header %v", err)
-		http.Redirect(w, r, "/signin", http.StatusPermanentRedirect)
-		return
+		data.UserID = ""
+		data.User = nil
 	} else {
 		payload, tokenerr := server.tokenMaker.VerifyToken(jwtToken)
 		if tokenerr != nil {
 			log.Printf("failed to verify token %v", tokenerr)
-			http.Redirect(w, r, "/signin", http.StatusPermanentRedirect)
-			return
+			data.UserID = ""
+			data.User = nil
+		} else {
+			var user db.User
+			dberr := server.db.Collection("users").FindOne(ctx, bson.M{"username": payload.Username}).Decode(&user)
+			if dberr != nil {
+				log.Printf("failed to fetch user details %v", dberr)
+				data.UserID = ""
+				data.User = nil
+			} else {
+				data.UserID = user.ID.String()
+				data.User = &user
+			}
 		}
-
-		var user db.User
-		dberr := server.db.Collection("users").FindOne(ctx, bson.M{"username": payload.Username}).Decode(&user)
-		if dberr != nil {
-			log.Printf("failed to fetch user details %v", dberr)
-			http.Redirect(w, r, "/signin", http.StatusPermanentRedirect)
-			return
-		}
-
-		data := struct {
-			Title string
-			User  db.User
-		}{Title: "LeetCode - The World's Leading Programming Learning Platform", User: user}
-		t.Execute(w, data)
 	}
+
+	log.Println(data)
+	t.Execute(w, data)
 }

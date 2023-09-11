@@ -38,7 +38,9 @@
       <a href="/" class="pt-2 pb-2.5 px-4">Explore</a>
       <a href="/" class="pt-2 pb-2.5 px-4">Product</a>
       <a href="/" class="pt-2 pb-2.5 px-4">Developer</a>
+      {{if not .UserID}}
       <a href="/signin" class="pt-2 pb-2.5 px-4">Sign In</a>
+      {{end}}
     </div>
   </div>
 </header>

@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/3ssalunke/leetcode-clone/db"
@@ -67,7 +68,8 @@ func SignIn(ctx context.Context, database db.Database, r *http.Request) (*db.Use
 	}
 	err := database.Collection("users").FindOne(ctx, filter).Decode(&user)
 	if err != nil {
-		return nil, fmt.Errorf("user does not exist for given username or email %w", err)
+		log.Printf("user does not exist for given username or email %v", err)
+		return nil, fmt.Errorf("user does not exist for given username or email")
 	}
 
 	err = util.CheckPassword(user.Password, password)

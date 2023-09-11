@@ -10,7 +10,9 @@ import (
 	"time"
 
 	"github.com/3ssalunke/leetcode-clone/controllers"
+	"github.com/3ssalunke/leetcode-clone/db"
 	"github.com/3ssalunke/leetcode-clone/util"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
@@ -37,10 +39,31 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
+		jwtToken, err := util.ExtractCookieFromHeader(r)
+		if err != nil {
+			log.Printf("failed to extract cookie from request header %v", err)
+		} else {
+			payload, tokenerr := server.tokenMaker.VerifyToken(jwtToken)
+			if tokenerr != nil {
+				log.Printf("failed to verify token %v", tokenerr)
+			} else {
+				var user db.User
+				dberr := server.db.Collection("users").FindOne(ctx, bson.M{"username": payload.Username}).Decode(&user)
+				if dberr != nil {
+					log.Printf("failed to fetch user details %v", dberr)
+				} else {
+					http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+					return
+				}
+			}
+		}
+
 		data := struct {
 			Title   string
 			Message string
-		}{Title: "Account Login - LeetCode", Message: ""}
+			UserID  string
+		}{Title: "Account Login - LeetCode", Message: "", UserID: ""}
+
 		t.Execute(w, data)
 		return
 	} else {
@@ -108,7 +131,9 @@ func (server *Server) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "GET" {
-		data := struct{ Message string }{Message: ""}
+		data := struct {
+			Message string
+		}{Message: ""}
 		t.Execute(w, data)
 		return
 	} else {
