@@ -67,6 +67,5 @@ func (server *Server) home(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	log.Println(data)
 	t.Execute(w, data)
 }

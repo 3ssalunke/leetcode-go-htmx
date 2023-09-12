@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -9,6 +10,8 @@ import (
 	"github.com/3ssalunke/leetcode-clone/token"
 	"github.com/3ssalunke/leetcode-clone/util"
 	"github.com/gorilla/mux"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/google"
 )
 
 type Server struct {
@@ -41,9 +44,9 @@ func NewServer() *Server {
 	return server
 }
 
-func (server *Server) Start(addr string) error {
-	server.Addr = addr
-	log.Println("server listening on", addr)
+func (server *Server) Start(host string) error {
+	server.Addr = fmt.Sprintf("%s:%s", host, server.config.AppPort)
+	log.Println("server listening on", server.Addr)
 	return server.ListenAndServe()
 }
 
@@ -55,9 +58,17 @@ func (server *Server) setupRoutes() *mux.Router {
 
 	r.Use(util.LoggerMiddleware)
 
+	callback_uri := "http://127.0.0.1:8080/accounts/auth/google/callback"
+	goth.UseProviders(
+		google.New(server.config.GoogleOAuthClientId, server.config.GoogleOAuthClientSecret, callback_uri, "email", "profile"),
+	)
+
 	r.HandleFunc("/", server.home).Methods("GET")
-	r.HandleFunc("accounts/signin", server.signIn).Methods("GET", "POST")
-	r.HandleFunc("accounts/signup", server.signUp).Methods("GET", "POST")
+
+	r.HandleFunc("/accounts/signin", server.signIn).Methods("GET", "POST")
+	r.HandleFunc("/accounts/signup", server.signUp).Methods("GET", "POST")
+	r.HandleFunc("/accounts/auth/{provider}", server.oAuthHandler).Methods("GET")
+	r.HandleFunc("/accounts/auth/{provider}/callback", server.oAuthCallbackHandler).Methods("GET")
 
 	return r
 }
