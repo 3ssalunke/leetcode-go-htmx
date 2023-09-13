@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/3ssalunke/leetcode-clone/db"
+	"github.com/3ssalunke/leetcode-clone/middleware"
 	"github.com/3ssalunke/leetcode-clone/token"
 	"github.com/3ssalunke/leetcode-clone/util"
 	"github.com/gorilla/mux"
@@ -34,12 +35,12 @@ func NewServer() *Server {
 		log.Fatalf("failed to create token maker %v", err)
 	}
 
-	server.config = config
-	server.db = db.NewMongoDatabase(config)
-	server.Handler = server.setupRoutes()
 	server.WriteTimeout = 15 * time.Second
 	server.ReadTimeout = 15 * time.Second
+	server.config = config
+	server.db = db.NewMongoDatabase(config)
 	server.tokenMaker = tokenMaker
+	server.Handler = server.setupRoutes()
 
 	return server
 }
@@ -56,7 +57,8 @@ func (server *Server) setupRoutes() *mux.Router {
 	r.PathPrefix("/static/images").Handler(http.StripPrefix("/static/images", http.FileServer(http.Dir("public/images"))))
 	r.PathPrefix("/static/css").Handler(http.StripPrefix("/static/css", http.FileServer(http.Dir("public/css"))))
 
-	r.Use(util.LoggerMiddleware)
+	r.Use(middleware.LoggerMiddleware)
+	r.Use(middleware.AuthMiddleware(server.tokenMaker, server.db))
 
 	callback_uri := "http://127.0.0.1:8080/accounts/auth/google/callback"
 	goth.UseProviders(

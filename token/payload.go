@@ -15,11 +15,12 @@ var (
 type TokenPayload struct {
 	ID        uuid.UUID
 	Username  string
+	Email     string
 	IssuedAt  time.Time
 	ExpiresAt time.Time
 }
 
-func NewTokenPayload(username string, duration time.Duration) (*TokenPayload, error) {
+func NewTokenPayload(username string, email string, duration time.Duration) (*TokenPayload, error) {
 	tokenId, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -27,6 +28,7 @@ func NewTokenPayload(username string, duration time.Duration) (*TokenPayload, er
 	payload := &TokenPayload{
 		ID:        tokenId,
 		Username:  username,
+		Email:     email,
 		IssuedAt:  time.Now(),
 		ExpiresAt: time.Now().Add(duration),
 	}

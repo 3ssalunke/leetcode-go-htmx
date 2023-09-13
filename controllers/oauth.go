@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/3ssalunke/leetcode-clone/db"
 	"github.com/markbates/goth"
@@ -21,13 +22,16 @@ func OAuthSignUp(ctx context.Context, database db.Database, oauthUser goth.User)
 	var existingUser db.User
 
 	err := database.Collection("users").FindOne(ctx, filter).Decode(&existingUser)
-	if err != nil {
-		return fmt.Errorf("user already exist for given username or email %v", err)
+	if err == nil {
+		return fmt.Errorf("user already exist for given username or email")
 	}
+
+	trimmedUsername := strings.Trim(oauthUser.Name, " ")
+	hypenatedUsername := strings.ReplaceAll(trimmedUsername, " ", "-")
 
 	user := &db.User{
 		ID:       primitive.NewObjectID(),
-		Username: oauthUser.Name,
+		Username: hypenatedUsername,
 		Email:    oauthUser.Email,
 		Password: "",
 		ImageUrl: "",

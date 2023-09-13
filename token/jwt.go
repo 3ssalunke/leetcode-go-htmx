@@ -21,8 +21,8 @@ func NewTokenMaker(secret string) (*TokenMaker, error) {
 	return &TokenMaker{secret}, nil
 }
 
-func (maker *TokenMaker) CreateToken(username string, duration time.Duration) (string, error) {
-	payload, err := NewTokenPayload(username, duration)
+func (maker *TokenMaker) CreateToken(username string, email string, duration time.Duration) (string, error) {
+	payload, err := NewTokenPayload(username, email, duration)
 	if err != nil {
 		return "", err
 	}
