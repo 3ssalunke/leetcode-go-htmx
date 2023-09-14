@@ -19,16 +19,7 @@ func (server *Server) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mainTemplate := fmt.Sprint(layoutsDir, "\\common\\base.html")
-	headerTemplate := fmt.Sprint(layoutsDir, "\\common\\header.html")
-	homeTemplate := fmt.Sprint(layoutsDir, "\\common\\home.html")
-
-	t, err := template.ParseFiles(mainTemplate, headerTemplate, homeTemplate)
-	if err != nil {
-		log.Printf("failed to parse view templates %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	var headerTemplate string
 
 	var data struct {
 		Title  string
@@ -42,9 +33,23 @@ func (server *Server) home(w http.ResponseWriter, r *http.Request) {
 		log.Printf("user is not authorized")
 		data.UserID = ""
 		data.User = nil
+
+		headerTemplate = fmt.Sprint(layoutsDir, "\\common\\home_header.html")
 	} else {
 		data.UserID = user.ID.String()
 		data.User = &user
+
+		headerTemplate = fmt.Sprint(layoutsDir, "\\common\\main_header.html")
+	}
+
+	mainTemplate := fmt.Sprint(layoutsDir, "\\common\\base.html")
+	homeTemplate := fmt.Sprint(layoutsDir, "\\common\\home.html")
+
+	t, err := template.ParseFiles(mainTemplate, headerTemplate, homeTemplate)
+	if err != nil {
+		log.Printf("failed to parse view templates %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	t.Execute(w, data)

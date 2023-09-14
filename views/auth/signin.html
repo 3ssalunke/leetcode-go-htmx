@@ -2,7 +2,7 @@
 <div id="signInFormContainer" class="flex flex-col gap-y-5">
   <form
     class="flex flex-col gap-y-5"
-    hx-post="accounts/signin"
+    hx-post="/accounts/signin"
     hx-swap="outerHTML"
     hx-target="#signInFormContainer"
   >
@@ -32,10 +32,10 @@
     </button>
   </form>
   <div class="flex items-center justify-between text-color-1 text-sm">
-    <a class="cursor-pointer" href="accounts/signin">Forgot Password?</a>
+    <a class="cursor-pointer" href="/accounts/signin">Forgot Password?</a>
     <a
       class="cursor-pointer"
-      hx-get="accounts/signup"
+      hx-get="/accounts/signup"
       hx-swap="outerHTML"
       hx-target="#signInFormContainer"
       hx-trigger="click"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/3ssalunke/leetcode-clone/db"
 	"github.com/markbates/goth"
@@ -30,11 +31,13 @@ func OAuthSignUp(ctx context.Context, database db.Database, oauthUser goth.User)
 	hypenatedUsername := strings.ReplaceAll(trimmedUsername, " ", "-")
 
 	user := &db.User{
-		ID:       primitive.NewObjectID(),
-		Username: hypenatedUsername,
-		Email:    oauthUser.Email,
-		Password: "",
-		ImageUrl: "",
+		ID:         primitive.NewObjectID(),
+		Username:   hypenatedUsername,
+		Email:      oauthUser.Email,
+		Password:   "",
+		ImageUrl:   "",
+		Created_at: primitive.NewDateTimeFromTime(time.Now()),
+		Updated_at: primitive.NewDateTimeFromTime(time.Now()),
 	}
 
 	_, err = database.Collection("users").InsertOne(ctx, user)

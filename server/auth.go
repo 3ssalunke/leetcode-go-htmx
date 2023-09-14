@@ -27,7 +27,7 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	baseTemplate := fmt.Sprint(layoutsDir, "\\common\\base.html")
-	headerTemplate := fmt.Sprint(layoutsDir, "\\common\\header.html")
+	headerTemplate := fmt.Sprint(layoutsDir, "\\common\\main_header.html")
 	authBaseTemplate := fmt.Sprint(layoutsDir, "\\auth\\auth_base.html")
 	authSignInTemplate := fmt.Sprint(layoutsDir, "\\auth\\signin.html")
 
@@ -55,7 +55,7 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, data)
 		return
 	} else {
-		user, err := controllers.SignIn(ctx, server.db, r)
+		user, err := controllers.SignIn(ctx, server.Db, r)
 		if err != nil {
 			data := struct {
 				Status  int
@@ -125,7 +125,7 @@ func (server *Server) signUp(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, data)
 		return
 	} else {
-		user, err := controllers.SignUp(ctx, server.db, r)
+		user, err := controllers.SignUp(ctx, server.Db, r)
 		if err != nil {
 			data := struct {
 				Status  int
@@ -152,6 +152,28 @@ func (server *Server) signUp(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, authCookie)
 		w.Header().Set("HX-Redirect", "/")
 		w.WriteHeader(301)
+		return
+	}
+}
+
+func (server *Server) logOut(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		_, ok := r.Context().Value(middleware.ContextUserKey).(db.User)
+		if !ok {
+			log.Println("User does not have valid logged in session")
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
+		}
+
+		authCookie := &http.Cookie{
+			Name:     "leetcode_auth",
+			Value:    "",
+			Path:     "/",
+			HttpOnly: true,
+		}
+
+		http.SetCookie(w, authCookie)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 }

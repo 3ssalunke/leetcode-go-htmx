@@ -1,7 +1,7 @@
 <div id="signUpFormContainer" class="flex flex-col gap-y-5">
   <form
     class="flex flex-col gap-y-5"
-    hx-post="accounts/signup"
+    hx-post="/accounts/signup"
     hx-swap="outerHTML"
     hx-target="#signUpFormContainer"
     hx-swap="none"
@@ -51,7 +51,7 @@
     Have an account?&nbsp;
     <a
       class="cursor-pointer text-color-1"
-      hx-get="accounts/signin"
+      hx-get="/accounts/signin"
       hx-swap="outerHTML"
       hx-target="body"
       hx-trigger="click"

@@ -30,7 +30,7 @@ func (server *Server) oAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = controllers.OAuthSignUp(ctx, server.db, user)
+	err = controllers.OAuthSignUp(ctx, server.Db, user)
 	if err != nil {
 		log.Printf("failed to store oauth user in db %v", err)
 	}

@@ -20,8 +20,27 @@ func NewMongoDatabase(config util.Config) Database {
 
 	client, err := NewClient(ctx, mongoDbURI)
 	if err != nil {
-		log.Fatal(client)
+		log.Fatal(err)
 	}
 
+	err = client.Ping(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("database connection established")
 	return client.Database(config.DBName)
+}
+
+func CloseMongoDbConnection(client Client) {
+	if client == nil {
+		return
+	}
+
+	err := client.Disconnect(context.TODO())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("connection to mongodb closed")
 }

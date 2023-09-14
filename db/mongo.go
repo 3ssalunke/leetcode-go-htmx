@@ -7,10 +7,13 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type Client interface {
 	Database(string) Database
+	Ping(context.Context) error
+	Disconnect(context context.Context) error
 }
 
 type Database interface {
@@ -48,15 +51,22 @@ func NewClient(ctx context.Context, connection string) (Client, error) {
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(connection))
 	if err != nil {
-		log.Println("Error occured while connecting to mongo")
+		log.Fatal(err)
 	}
-	log.Println("database connection established")
 	return &MongoClient{mongoClient: client}, err
 }
 
 func (client *MongoClient) Database(dbName string) Database {
 	db := client.mongoClient.Database(dbName)
 	return &MongoDatabase{db}
+}
+
+func (client *MongoClient) Ping(ctx context.Context) error {
+	return client.mongoClient.Ping(ctx, &readpref.ReadPref{})
+}
+
+func (client *MongoClient) Disconnect(ctx context.Context) error {
+	return client.mongoClient.Disconnect(ctx)
 }
 
 func (db *MongoDatabase) Collection(name string) Collection {

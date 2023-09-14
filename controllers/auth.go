@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/3ssalunke/leetcode-clone/db"
 	"github.com/3ssalunke/leetcode-clone/util"
@@ -40,11 +41,13 @@ func SignUp(ctx context.Context, database db.Database, r *http.Request) (*db.Use
 	}
 
 	user := &db.User{
-		ID:       primitive.NewObjectID(),
-		Username: username,
-		Email:    email,
-		Password: password,
-		ImageUrl: "",
+		ID:         primitive.NewObjectID(),
+		Username:   username,
+		Email:      email,
+		Password:   password,
+		ImageUrl:   "",
+		Created_at: primitive.NewDateTimeFromTime(time.Now()),
+		Updated_at: primitive.NewDateTimeFromTime(time.Now()),
 	}
 
 	_, err = database.Collection("users").InsertOne(ctx, user)

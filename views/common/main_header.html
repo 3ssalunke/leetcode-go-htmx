@@ -1,10 +1,10 @@
 {{define "header"}}
 <header id="header">
   <div
-    class="flex justify-between items-center max-w-screen-lg mx-auto pt-5 py-2 px-4"
+    class="flex justify-between items-center max-w-screen-xl mx-auto pt-5 py-2 px-4"
   >
     <div class="flex items-center gap-x-1">
-      <span class="h-10 w-10">
+      <span class="h-7 w-7">
         <svg
           width="95"
           height="111"
@@ -31,16 +31,21 @@
           ></path>
         </svg>
       </span>
-      <p class="text-2xl">LeetCode</p>
-    </div>
-    <div class="flex items-center gap-x-3">
-      <a href="/" class="pt-2 pb-2.5 px-4">Premium</a>
-      <a href="/" class="pt-2 pb-2.5 px-4">Explore</a>
-      <a href="/" class="pt-2 pb-2.5 px-4">Product</a>
-      <a href="/" class="pt-2 pb-2.5 px-4">Developer</a>
+      <a href="/explore" class="pt-2 pb-2.5 px-4">Explore</a>
+      <a href="/problemset/all" class="pt-2 pb-2.5 px-4">Problems</a>
+      <a href="/" class="pt-2 pb-2.5 px-4">Contest</a>
+      <a href="/" class="pt-2 pb-2.5 px-4">Discuss</a>
       {{if not .UserID}}
       <a href="/accounts/signin" class="pt-2 pb-2.5 px-4">Sign In</a>
       {{end}}
+    </div>
+    <div class="flex items-center justify-center gap-x-3">
+      <a href="/" class="pt-2 pb-2.5 px-4">
+        <i class="fa-regular fa-bell text-xl text-color-2"></i>
+      </a>
+      <a href="/accounts/logout" class="pt-2 pb-2.5 px-4">
+        <i class="fa-solid fa-user text-xl text-color-2"></i>
+      </a>
     </div>
   </div>
 </header>

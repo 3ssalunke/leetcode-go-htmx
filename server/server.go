@@ -19,7 +19,7 @@ type Server struct {
 	http.Server
 	tokenMaker *token.TokenMaker
 	config     util.Config
-	db         db.Database
+	Db         db.Database
 }
 
 func NewServer() *Server {
@@ -38,7 +38,7 @@ func NewServer() *Server {
 	server.WriteTimeout = 15 * time.Second
 	server.ReadTimeout = 15 * time.Second
 	server.config = config
-	server.db = db.NewMongoDatabase(config)
+	server.Db = db.NewMongoDatabase(config)
 	server.tokenMaker = tokenMaker
 	server.Handler = server.setupRoutes()
 
@@ -58,7 +58,7 @@ func (server *Server) setupRoutes() *mux.Router {
 	r.PathPrefix("/static/css").Handler(http.StripPrefix("/static/css", http.FileServer(http.Dir("public/css"))))
 
 	r.Use(middleware.LoggerMiddleware)
-	r.Use(middleware.AuthMiddleware(server.tokenMaker, server.db))
+	r.Use(middleware.AuthMiddleware(server.tokenMaker, server.Db))
 
 	callback_uri := "http://127.0.0.1:8080/accounts/auth/google/callback"
 	goth.UseProviders(
@@ -69,6 +69,7 @@ func (server *Server) setupRoutes() *mux.Router {
 
 	r.HandleFunc("/accounts/signin", server.signIn).Methods("GET", "POST")
 	r.HandleFunc("/accounts/signup", server.signUp).Methods("GET", "POST")
+	r.HandleFunc("/accounts/logout", server.logOut).Methods("GET")
 	r.HandleFunc("/accounts/auth/{provider}", server.oAuthHandler).Methods("GET")
 	r.HandleFunc("/accounts/auth/{provider}/callback", server.oAuthCallbackHandler).Methods("GET")
 
