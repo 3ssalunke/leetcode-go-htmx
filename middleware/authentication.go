@@ -26,11 +26,11 @@ func AuthMiddleware(tokenMaker *token.TokenMaker, database db.Database) mux.Midd
 
 			jwtToken, err := util.ExtractCookieFromHeader(r)
 			if err != nil {
-				log.Printf("failed to extract cookie from request header %v", err)
+				log.Printf("failed to extract cookie from request header - %v", err)
 			} else {
 				payload, tokenerr := tokenMaker.VerifyToken(jwtToken)
 				if tokenerr != nil {
-					log.Printf("failed to verify token %v", tokenerr)
+					log.Printf("failed to verify token - %v", tokenerr)
 				} else {
 					var user db.User
 					filter := bson.M{
@@ -42,7 +42,7 @@ func AuthMiddleware(tokenMaker *token.TokenMaker, database db.Database) mux.Midd
 
 					dberr := database.Collection("users").FindOne(ctx, filter).Decode(&user)
 					if dberr != nil {
-						log.Printf("failed to fetch user details %v", dberr)
+						log.Printf("failed to fetch user details - %v", dberr)
 					}
 					if user.ID != primitive.NilObjectID {
 						r = r.WithContext(context.WithValue(r.Context(), ContextUserKey, user))

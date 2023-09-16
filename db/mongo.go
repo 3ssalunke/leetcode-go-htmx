@@ -21,7 +21,12 @@ type Database interface {
 	Client() Client
 }
 
+type Cursor interface {
+	All(context.Context, interface{}) error
+}
+
 type Collection interface {
+	Find(context.Context, interface{}, ...*options.FindOptions) (Cursor, error)
 	FindOne(context.Context, interface{}) SingleResult
 	InsertOne(context.Context, interface{}) (interface{}, error)
 }
@@ -40,6 +45,10 @@ type MongoDatabase struct {
 
 type MongoCollection struct {
 	collection *mongo.Collection
+}
+
+type MongoCursor struct {
+	cursor *mongo.Cursor
 }
 
 type MongoSingleResult struct {
@@ -84,6 +93,11 @@ func (collection *MongoCollection) InsertOne(ctx context.Context, document inter
 	return result.InsertedID, err
 }
 
+func (collection *MongoCollection) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error) {
+	cursor, err := collection.collection.Find(ctx, filter, opts...)
+	return &MongoCursor{cursor}, err
+}
+
 func (collection *MongoCollection) FindOne(ctx context.Context, filter interface{}) SingleResult {
 	singleResult := collection.collection.FindOne(ctx, filter)
 	return &MongoSingleResult{singleResult}
@@ -91,4 +105,8 @@ func (collection *MongoCollection) FindOne(ctx context.Context, filter interface
 
 func (s *MongoSingleResult) Decode(result interface{}) error {
 	return s.singleResult.Decode(result)
+}
+
+func (cursor *MongoCursor) All(ctx context.Context, result interface{}) error {
+	return cursor.cursor.All(ctx, result)
 }

@@ -15,7 +15,8 @@ type User struct {
 type Problem struct {
 	ID         primitive.ObjectID `bson:"_id"`
 	Title      string             `bson:"title"`
-	Acceptance int                `bson:"acceptance"`
+	Slug       string             `bson:"slug"`
+	Acceptance float64            `bson:"acceptance"`
 	Difficulty string             `bson:"difficulty"`
 	Created_at primitive.DateTime `bson:"created_at"`
 	Updated_at primitive.DateTime `bson:"updated_at"`

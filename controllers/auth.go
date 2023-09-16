@@ -52,7 +52,7 @@ func SignUp(ctx context.Context, database db.Database, r *http.Request) (*db.Use
 
 	_, err = database.Collection("users").InsertOne(ctx, user)
 	if err != nil {
-		return nil, fmt.Errorf("failed to insert new user %w", err)
+		return nil, fmt.Errorf("failed to insert new user - %w", err)
 	}
 
 	return user, nil
@@ -71,7 +71,7 @@ func SignIn(ctx context.Context, database db.Database, r *http.Request) (*db.Use
 	}
 	err := database.Collection("users").FindOne(ctx, filter).Decode(&user)
 	if err != nil {
-		log.Printf("user does not exist for given username or email %v", err)
+		log.Printf("user does not exist for given username or email - %v", err)
 		return nil, fmt.Errorf("user does not exist for given username or email")
 	}
 

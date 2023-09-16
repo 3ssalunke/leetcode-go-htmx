@@ -27,12 +27,12 @@ func NewServer() *Server {
 
 	config, err := util.LoadConfig(".")
 	if err != nil {
-		log.Fatalf("failed to load enviroment variables %v", err)
+		log.Fatalf("failed to load enviroment variables - %v", err)
 	}
 
 	tokenMaker, err := token.NewTokenMaker(config.TokenSecret)
 	if err != nil {
-		log.Fatalf("failed to create token maker %v", err)
+		log.Fatalf("failed to create token maker - %v", err)
 	}
 
 	server.WriteTimeout = 15 * time.Second
@@ -72,6 +72,9 @@ func (server *Server) setupRoutes() *mux.Router {
 	r.HandleFunc("/accounts/logout", server.logOut).Methods("GET")
 	r.HandleFunc("/accounts/auth/{provider}", server.oAuthHandler).Methods("GET")
 	r.HandleFunc("/accounts/auth/{provider}/callback", server.oAuthCallbackHandler).Methods("GET")
+
+	r.HandleFunc("/problemset/all", server.ProblemsAll).Methods("GET")
+	r.HandleFunc("/problems/{problem}", server.Problem).Methods("GET")
 
 	return r
 }

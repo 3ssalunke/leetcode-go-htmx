@@ -1,0 +1,30 @@
+{{define "main"}}
+<main class="h-full">
+  <div class="w-full flex justify-center">
+    <table class="w-7/12 text-left mt-10">
+      <thead>
+        <tr>
+          <th class="py-5">Status</th>
+          <th class="py-5">Title</th>
+          <th class="py-5">Solution</th>
+          <th class="py-5">Acceptance</th>
+          <th class="py-5">Difficulty</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .ProblemsList}}
+        <tr>
+          <td class="py-5">NA</td>
+          <td class="py-5">
+            <a href="/problems/{{.Slug}}">{{.Title}}</a>
+          </td>
+          <td class="py-5">S</td>
+          <td class="py-5">{{.Acceptance}}</td>
+          <td class="py-5">{{.Difficulty}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</main>
+{{end}}

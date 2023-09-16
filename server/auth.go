@@ -21,7 +21,7 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 
 	layoutsDir, err := util.GetTemplateDir()
 	if err != nil {
-		log.Printf("failed to get view template directory %v", err)
+		log.Printf("failed to get view template directory - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -33,7 +33,7 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 
 	t, err := template.ParseFiles(baseTemplate, headerTemplate, authBaseTemplate, authSignInTemplate)
 	if err != nil {
-		log.Printf("failed to parse view templates %v", err)
+		log.Printf("failed to parse view templates - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -66,7 +66,7 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 
 			err = t.ExecuteTemplate(&signInOutputBuffer, "auth_form", data)
 			if err != nil {
-				log.Printf("failed to parse auth form template %v", err)
+				log.Printf("failed to parse auth form template - %v", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -79,7 +79,7 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 
 		token, err := server.tokenMaker.CreateToken(user.Username, user.Email, time.Duration(24*time.Hour))
 		if err != nil {
-			log.Printf("failed to create token %v", err)
+			log.Printf("failed to create token - %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -104,7 +104,7 @@ func (server *Server) signUp(w http.ResponseWriter, r *http.Request) {
 
 	layoutsDir, err := util.GetTemplateDir()
 	if err != nil {
-		log.Printf("failed to get view template directory %v", err)
+		log.Printf("failed to get view template directory - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -113,7 +113,7 @@ func (server *Server) signUp(w http.ResponseWriter, r *http.Request) {
 
 	t, err := template.ParseFiles(signUpTemplate)
 	if err != nil {
-		log.Printf("failed to parse auth form template %v", err)
+		log.Printf("failed to parse auth form template - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -137,7 +137,7 @@ func (server *Server) signUp(w http.ResponseWriter, r *http.Request) {
 
 		token, err := server.tokenMaker.CreateToken(user.Username, user.Email, time.Duration(24*time.Hour))
 		if err != nil {
-			log.Printf("failed to create token %v", err)
+			log.Printf("failed to create token - %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

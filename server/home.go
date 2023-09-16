@@ -14,7 +14,7 @@ import (
 func (server *Server) home(w http.ResponseWriter, r *http.Request) {
 	layoutsDir, err := util.GetTemplateDir()
 	if err != nil {
-		log.Printf("failed to get view template directory %v", err)
+		log.Printf("failed to get view template directory - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -47,7 +47,7 @@ func (server *Server) home(w http.ResponseWriter, r *http.Request) {
 
 	t, err := template.ParseFiles(mainTemplate, headerTemplate, homeTemplate)
 	if err != nil {
-		log.Printf("failed to parse view templates %v", err)
+		log.Printf("failed to parse view templates - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

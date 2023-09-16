@@ -42,7 +42,7 @@ func OAuthSignUp(ctx context.Context, database db.Database, oauthUser goth.User)
 
 	_, err = database.Collection("users").InsertOne(ctx, user)
 	if err != nil {
-		return fmt.Errorf("failed to insert new user %w", err)
+		return fmt.Errorf("failed to insert new user - %w", err)
 	}
 
 	return nil
