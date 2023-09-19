@@ -29,6 +29,7 @@ type Collection interface {
 	Find(context.Context, interface{}, ...*options.FindOptions) (Cursor, error)
 	FindOne(context.Context, interface{}) SingleResult
 	InsertOne(context.Context, interface{}) (interface{}, error)
+	Aggregate(context.Context, interface{}, ...*options.AggregateOptions) (Cursor, error)
 }
 
 type SingleResult interface {
@@ -95,6 +96,11 @@ func (collection *MongoCollection) InsertOne(ctx context.Context, document inter
 
 func (collection *MongoCollection) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error) {
 	cursor, err := collection.collection.Find(ctx, filter, opts...)
+	return &MongoCursor{cursor}, err
+}
+
+func (collection *MongoCollection) Aggregate(ctx context.Context, pipeline interface{}, opts ...*options.AggregateOptions) (Cursor, error) {
+	cursor, err := collection.collection.Aggregate(ctx, pipeline, opts...)
 	return &MongoCursor{cursor}, err
 }
 

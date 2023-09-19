@@ -1,5 +1,37 @@
 {{define "main"}}
-<main>
-  <h1>Problem</h1>
+<head>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs/editor/editor.main.min.css"
+  />
+</head>
+<main class="">
+  <div class="flex">
+    <div class="flex-1 m-2 p-2 border-2 bg-gray-300">
+      {{with .Problem}}
+      <h1 class="font-bold text-2xl">{{.Title}}</h1>
+      <div>{{.Content}}</div>
+      {{end}}
+    </div>
+    <div class="flex-1 m-2 p-2 border-2 bg-gray-300">
+      <div id="editor" class="h-full"></div>
+    </div>
+  </div>
 </main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs/loader.js"></script>
+<script>
+  require.config({
+    paths: {
+      vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs",
+    },
+  });
+
+  require(["vs/editor/editor.main"], function () {
+    // Initialize the Monaco Editor
+    var editor = monaco.editor.create(document.getElementById("editor"), {
+      value: 'function hello() {\n\tconsole.log("Hello, Monaco Editor!");\n}',
+      language: "javascript",
+    });
+  });
+</script>
 {{end}}

@@ -60,21 +60,24 @@ func (server *Server) ProblemsAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("failed to fetch problems - %v", err)
 	}
-	log.Println(problems[0].Title)
+
 	data.ProblemsList = problems
 
 	t.Execute(w, data)
 }
 
 func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
-	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var data struct {
 		Title   string
 		UserID  string
 		User    *db.User
-		Problem db.Problem
+		Problem struct {
+			Title   string
+			Content template.HTML
+		}
 	}
 
 	vars := mux.Vars(r)
@@ -91,6 +94,24 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 		data.UserID = user.ID.String()
 		data.User = &user
 	}
+
+	problems, err := controllers.GetProblemBySlug(ctx, server.Db, problemSlug, user.ID)
+	if err != nil {
+		log.Printf("failed to fetch details for problem with slug %s - %v", problemSlug, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if len(problems) == 0 {
+		log.Printf("no details for problem with slug %s", problemSlug)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	data.Problem = struct {
+		Title   string
+		Content template.HTML
+	}{Title: problems[0].Title, Content: template.HTML(problems[0].Content)}
 
 	layoutsDir, err := util.GetTemplateDir()
 	if err != nil {

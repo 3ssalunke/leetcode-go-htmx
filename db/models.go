@@ -21,3 +21,8 @@ type Problem struct {
 	Created_at primitive.DateTime `bson:"created_at"`
 	Updated_at primitive.DateTime `bson:"updated_at"`
 }
+
+type ProblemsDetails struct {
+	ID      primitive.ObjectID `bson:"_id"`
+	Content string             `bson:"content"`
+}
