@@ -1,6 +1,8 @@
 :root {
   --color-1: #455a64;
   --color-2: #bdbdbd;
+  --color-3: #2db55d;
+  --color-4: #eff1f6bf;
 }
 
 html {
@@ -29,6 +31,14 @@ main {
 
 .bg-color-1 {
   background: var(--color-1);
+}
+
+.bg-color-3 {
+  background-color: var(--color-3);
+}
+
+.bg-color-4 {
+  background-color: var(--color-4);
 }
 
 .text-color-1 {

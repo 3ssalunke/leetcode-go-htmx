@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -13,6 +14,7 @@ import (
 	"github.com/3ssalunke/leetcode-clone/middleware"
 	"github.com/3ssalunke/leetcode-clone/util"
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (server *Server) ProblemsAll(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +77,7 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 		UserID  string
 		User    *db.User
 		Problem struct {
+			ID      primitive.ObjectID
 			Title   string
 			Content template.HTML
 		}
@@ -83,7 +86,7 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	problemSlug := vars["problem"]
 
-	data.Title = problemSlug + " - The World's Leading Programming Learning Platform"
+	data.Title = problemSlug + " - LeetCode"
 
 	user, ok := r.Context().Value(middleware.ContextUserKey).(db.User)
 	if !ok {
@@ -109,9 +112,10 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Problem = struct {
+		ID      primitive.ObjectID
 		Title   string
 		Content template.HTML
-	}{Title: problems[0].Title, Content: template.HTML(problems[0].Content)}
+	}{ID: problems[0].ID, Title: problems[0].Title, Content: template.HTML(problems[0].Content)}
 
 	layoutsDir, err := util.GetTemplateDir()
 	if err != nil {
@@ -132,4 +136,21 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Execute(w, data)
+}
+
+type CodeExecuteRequest struct {
+	ProblemID string `json:"problem_id"`
+	UserInput string `json:"user_input"`
+}
+
+func (server *Server) ExecuteCode(w http.ResponseWriter, r *http.Request) {
+	var requestData CodeExecuteRequest
+	err := json.NewDecoder(r.Body).Decode(&requestData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	log.Println(requestData)
+	w.WriteHeader(http.StatusOK)
 }
