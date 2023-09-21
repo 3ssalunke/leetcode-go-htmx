@@ -17,6 +17,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+func getFileExtension(lang string) string {
+	switch lang {
+	case "javascript":
+		return "js"
+	case "python":
+		return "py"
+	default:
+		return ""
+	}
+}
+
 func (server *Server) ProblemsAll(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -79,6 +90,7 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 		Problem struct {
 			ID      primitive.ObjectID
 			Title   string
+			Slug    string
 			Content template.HTML
 		}
 	}
@@ -114,8 +126,9 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 	data.Problem = struct {
 		ID      primitive.ObjectID
 		Title   string
+		Slug    string
 		Content template.HTML
-	}{ID: problems[0].ID, Title: problems[0].Title, Content: template.HTML(problems[0].Content)}
+	}{ID: problems[0].ID, Title: problems[0].Title, Slug: problems[0].Slug, Content: template.HTML(problems[0].Content)}
 
 	layoutsDir, err := util.GetTemplateDir()
 	if err != nil {
@@ -140,7 +153,8 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 
 type CodeExecuteRequest struct {
 	ProblemID string `json:"problem_id"`
-	UserInput string `json:"user_input"`
+	TypedCode string `json:"typed_code"`
+	Lang      string `json:"lang"`
 }
 
 func (server *Server) ExecuteCode(w http.ResponseWriter, r *http.Request) {
@@ -151,6 +165,35 @@ func (server *Server) ExecuteCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(requestData)
+	err = util.WriteFile(requestData.Lang, getFileExtension(requestData.Lang), requestData.TypedCode)
+	if err != nil {
+		log.Printf("failed to write to the file - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	dockerfilePath, err := util.GetDockerfilePath(requestData.Lang)
+	if err != nil {
+		log.Printf("failed to get docker file path - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	dockerImageTag := fmt.Sprintf("%s-docker-img", requestData.Lang)
+
+	err = util.RunDockerCommand("docker", "build", "-t", dockerImageTag, dockerfilePath)
+	if err != nil {
+		log.Printf("failed to build docker image - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = util.RunDockerCommand("docker", "run", "-d", dockerImageTag)
+	if err != nil {
+		log.Printf("failed to run docker container - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }

@@ -12,6 +12,7 @@ import (
 type ProblemWithDetails struct {
 	ID        primitive.ObjectID `bson:"_id"`
 	Title     string             `bson:"title"`
+	Slug      string             `bson:"slug"`
 	DetailsID primitive.ObjectID `bson:"details_id"`
 	Content   string             `bson:"content"`
 }
@@ -63,6 +64,7 @@ func GetProblemBySlug(ctx context.Context, database db.Database, problemSlug str
 					{Key: "details_id", Value: "$details._id"},  // Rename _id to orderId
 					{Key: "content", Value: "$details.content"}, // Include customer name
 					{Key: "title", Value: 1},
+					{Key: "slug", Value: 1},
 				},
 			},
 		},
