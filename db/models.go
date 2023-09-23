@@ -22,7 +22,16 @@ type Problem struct {
 	Updated_at primitive.DateTime `bson:"updated_at"`
 }
 
+type CodeSnippet struct {
+	Lang     string `bson:"lang"`
+	LangSlug string `bson:"lang_slug"`
+	Code     string `bson:"code"`
+}
+
 type ProblemsDetails struct {
-	ID      primitive.ObjectID `bson:"_id"`
-	Content string             `bson:"content"`
+	ID             primitive.ObjectID `bson:"_id"`
+	Content        string             `bson:"content"`
+	TestCaseList   []string           `bson:"test_case_list"`
+	TestCaseAnswer []string           `bson:"test_case_answers"`
+	CodeSnippets   []CodeSnippet      `bson:"code_snippets"`
 }

@@ -80,21 +80,26 @@ func (server *Server) ProblemsAll(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, data)
 }
 
+type ProblemData struct {
+	ID           primitive.ObjectID
+	Title        string
+	Slug         string
+	Content      template.HTML
+	TestCaseList []string
+	CodeSnippets []db.CodeSnippet
+}
+type ProblemViewData struct {
+	Title   string
+	UserID  string
+	User    *db.User
+	Problem ProblemData
+}
+
 func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var data struct {
-		Title   string
-		UserID  string
-		User    *db.User
-		Problem struct {
-			ID      primitive.ObjectID
-			Title   string
-			Slug    string
-			Content template.HTML
-		}
-	}
+	var data ProblemViewData
 
 	vars := mux.Vars(r)
 	problemSlug := vars["problem"]
@@ -124,12 +129,14 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.Problem = struct {
-		ID      primitive.ObjectID
-		Title   string
-		Slug    string
-		Content template.HTML
-	}{ID: problems[0].ID, Title: problems[0].Title, Slug: problems[0].Slug, Content: template.HTML(problems[0].Content)}
+	data.Problem = ProblemData{
+		ID:           problems[0].ID,
+		Title:        problems[0].Title,
+		Slug:         problems[0].Slug,
+		Content:      template.HTML(problems[0].Content),
+		TestCaseList: problems[0].TestCaseList,
+		CodeSnippets: problems[0].CodeSnippets,
+	}
 
 	layoutsDir, err := util.GetTemplateDir()
 	if err != nil {

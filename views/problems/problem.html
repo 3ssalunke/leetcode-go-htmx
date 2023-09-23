@@ -33,16 +33,6 @@
   var jsonDataElement = document.getElementById("jsonData");
   var data = JSON.parse(jsonDataElement.textContent);
 
-  const toCamelCase = (slug) => {
-    const temp = slug
-      .split("-")
-      .map((c) => c.charAt(0).toUpperCase() + c.slice(1))
-      .join("");
-    return temp.charAt(0).toLowerCase() + temp.slice(1);
-  };
-
-  const functionName = toCamelCase(data.Problem.Slug);
-
   require.config({
     paths: {
       vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs",
@@ -52,7 +42,7 @@
   require(["vs/editor/editor.main"], function () {
     // Initialize the Monaco Editor
     editor = monaco.editor.create(document.getElementById("editor"), {
-      value: `function ${functionName}(){\n\tconsole.log("Hello, Monaco Editor!");\n}`,
+      value: `function test(){\n\tconsole.log("Hello, Monaco Editor!");\n}`,
       language: "javascript",
     });
   });
@@ -63,7 +53,7 @@
       method: "POST",
       body: JSON.stringify({
         problem_id: data.Problem.ID,
-        typed_code: editor.getValue() + `\n\n\n${functionName}();`,
+        typed_code: editor.getValue(),
         lang: "javascript",
       }),
     });

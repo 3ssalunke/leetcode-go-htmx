@@ -10,11 +10,13 @@ import (
 )
 
 type ProblemWithDetails struct {
-	ID        primitive.ObjectID `bson:"_id"`
-	Title     string             `bson:"title"`
-	Slug      string             `bson:"slug"`
-	DetailsID primitive.ObjectID `bson:"details_id"`
-	Content   string             `bson:"content"`
+	ID           primitive.ObjectID `bson:"_id"`
+	Title        string             `bson:"title"`
+	Slug         string             `bson:"slug"`
+	DetailsID    primitive.ObjectID `bson:"details_id"`
+	Content      string             `bson:"content"`
+	TestCaseList []string           `bson:"test_case_list"`
+	CodeSnippets []db.CodeSnippet   `bson:"code_snippets"`
 }
 
 func GetProblems(ctx context.Context, database db.Database, userId primitive.ObjectID) ([]db.Problem, error) {
@@ -61,10 +63,12 @@ func GetProblemBySlug(ctx context.Context, database db.Database, problemSlug str
 			{
 				Key: "$project",
 				Value: bson.D{
-					{Key: "details_id", Value: "$details._id"},  // Rename _id to orderId
-					{Key: "content", Value: "$details.content"}, // Include customer name
 					{Key: "title", Value: 1},
 					{Key: "slug", Value: 1},
+					{Key: "details_id", Value: "$details._id"},
+					{Key: "content", Value: "$details.content"},
+					{Key: "test_case_list", Value: "$details.test_case_list"},
+					{Key: "code_snippets", Value: "$details.CodeSnippets"},
 				},
 			},
 		},
