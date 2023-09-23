@@ -5,7 +5,7 @@ FROM node:18-alpine3.17
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY . /app
+COPY . .
 
 # Run app.py when the container launches
 CMD ["node", "app.js"]

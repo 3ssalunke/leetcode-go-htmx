@@ -11,7 +11,7 @@ func WriteFile(progLang string, fileExt string, typedCode string) error {
 		return err
 	}
 
-	filepath := fmt.Sprintf("%s\\docker_runtimes\\%s\\app.%s", wd, progLang, fileExt)
+	filepath := fmt.Sprintf("%s\\docker\\runtimes\\%s\\app.%s", wd, progLang, fileExt)
 
 	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {

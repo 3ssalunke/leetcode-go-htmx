@@ -11,6 +11,7 @@ import (
 
 	"github.com/3ssalunke/leetcode-clone/controllers"
 	"github.com/3ssalunke/leetcode-clone/db"
+	"github.com/3ssalunke/leetcode-clone/docker"
 	"github.com/3ssalunke/leetcode-clone/middleware"
 	"github.com/3ssalunke/leetcode-clone/util"
 	"github.com/gorilla/mux"
@@ -158,6 +159,9 @@ type CodeExecuteRequest struct {
 }
 
 func (server *Server) ExecuteCode(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(300)*time.Second)
+	defer cancel()
+
 	var requestData CodeExecuteRequest
 	err := json.NewDecoder(r.Body).Decode(&requestData)
 	if err != nil {
@@ -172,28 +176,54 @@ func (server *Server) ExecuteCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dockerfilePath, err := util.GetDockerfilePath(requestData.Lang)
+	dockerClient, err := docker.NewDockerClient()
 	if err != nil {
-		log.Printf("failed to get docker file path - %v", err)
+		log.Printf("failed to create docker client - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	defer dockerClient.Client.Close()
 
 	dockerImageTag := fmt.Sprintf("%s-docker-img", requestData.Lang)
 
-	err = util.RunDockerCommand("docker", "build", "-t", dockerImageTag, dockerfilePath)
+	image, err := dockerClient.CreateDockerImage(ctx, requestData.Lang, dockerImageTag)
 	if err != nil {
-		log.Printf("failed to build docker image - %v", err)
+		log.Printf("failed to create docker image - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	defer image.Body.Close()
+	log.Println("docker image created successfully.")
 
-	err = util.RunDockerCommand("docker", "run", "-d", dockerImageTag)
+	container, err := dockerClient.RunDockerContainer(ctx, dockerImageTag)
 	if err != nil {
 		log.Printf("failed to run docker container - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	log.Println("docker container started successfully.")
+
+	reader, err := dockerClient.GetContainerLogs(ctx, container.ID)
+	if err != nil {
+		log.Printf("failed to get docker container logs - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer reader.Close()
+
+	if err = dockerClient.RemoveDockerContainer(ctx, container.ID); err != nil {
+		log.Printf("failed to remove docker container - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	log.Println("container removed successfully.")
+
+	if err = dockerClient.RemoveDockerImage(ctx, dockerImageTag); err != nil {
+		log.Printf("failed to remove docker image - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	log.Println("image removed successfully.")
 
 	w.WriteHeader(http.StatusOK)
 }
