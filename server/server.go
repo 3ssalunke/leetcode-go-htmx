@@ -75,7 +75,7 @@ func (server *Server) setupRoutes() *mux.Router {
 
 	r.HandleFunc("/problemset/all", server.ProblemsAll).Methods("GET")
 	r.HandleFunc("/problems/{problem}", server.Problem).Methods("GET")
-	r.HandleFunc("/problems/run", server.ExecuteCode).Methods("POST")
+	r.HandleFunc("/problems/run", server.TestAndVerfiyUserCode).Methods("POST")
 
 	return r
 }

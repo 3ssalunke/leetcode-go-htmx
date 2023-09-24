@@ -17,6 +17,7 @@ type ProblemWithDetails struct {
 	Content      string             `bson:"content"`
 	TestCaseList []string           `bson:"test_case_list"`
 	CodeSnippets []db.CodeSnippet   `bson:"code_snippets"`
+	SolutionName string             `bson:"solution_name"`
 }
 
 func GetProblems(ctx context.Context, database db.Database, userId primitive.ObjectID) ([]db.Problem, error) {
@@ -68,13 +69,72 @@ func GetProblemBySlug(ctx context.Context, database db.Database, problemSlug str
 					{Key: "details_id", Value: "$details._id"},
 					{Key: "content", Value: "$details.content"},
 					{Key: "test_case_list", Value: "$details.test_case_list"},
-					{Key: "code_snippets", Value: "$details.CodeSnippets"},
+					{Key: "code_snippets", Value: "$details.code_snippets"},
 				},
 			},
 		},
 	}
 
 	var results []ProblemWithDetails
+
+	cursor, err := database.Collection("problem_set").Aggregate(ctx, pipeline)
+	if err != nil {
+		return results, err
+	}
+
+	err = cursor.All(ctx, &results)
+
+	return results, err
+}
+
+func GetProblemDetailsByProblemID(ctx context.Context, database db.Database, problemID string) ([]ProblemWithDetails, error) {
+	var results []ProblemWithDetails
+
+	objID, err := primitive.ObjectIDFromHex(problemID)
+	if err != nil {
+		return results, err
+	}
+
+	pipeline := mongo.Pipeline{
+		{
+			// $match stage
+			{
+				Key: "$match",
+				Value: bson.D{
+					{Key: "_id", Value: objID},
+				},
+			},
+		},
+		{
+			// $lookup stage
+			{
+				Key: "$lookup",
+				Value: bson.D{
+					{Key: "from", Value: "problem_details"},  // The name of the second collection
+					{Key: "localField", Value: "details_id"}, // Field from the first collection
+					{Key: "foreignField", Value: "_id"},      // Field from the second collection
+					{Key: "as", Value: "details"},            // Alias for the joined data
+				},
+			},
+		},
+		{
+			// $unwind stage
+			{Key: "$unwind", Value: "$details"},
+		},
+		{
+			// $project stage
+			{
+				Key: "$project",
+				Value: bson.D{
+					{Key: "details_id", Value: "$details._id"},
+					{Key: "content", Value: "$details.content"},
+					{Key: "test_case_list", Value: "$details.test_case_list"},
+					{Key: "code_snippets", Value: "$details.code_snippets"},
+					{Key: "solution_name", Value: "$details.solution_name"},
+				},
+			},
+		},
+	}
 
 	cursor, err := database.Collection("problem_set").Aggregate(ctx, pipeline)
 	if err != nil {

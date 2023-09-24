@@ -3,15 +3,41 @@ package util
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
-func WriteFile(progLang string, fileExt string, typedCode string) error {
+func getFileExtension(lang string) string {
+	switch lang {
+	case "javascript":
+		return "js"
+	case "python":
+		return "py"
+	default:
+		return ""
+	}
+}
+
+func writeExecutionLines(lang string, functionName string, testCase string) string {
+	args := strings.Split(testCase, "\n")
+	argsString := strings.Join(args, ", ")
+
+	switch lang {
+	case "javascript":
+		return fmt.Sprintf("\n\n\n%s(%s)", functionName, argsString)
+	case "python":
+		return fmt.Sprintf("\n\n\nc=Solution()\nc.%s(%s)", functionName, argsString)
+	default:
+		return ""
+	}
+}
+
+func WriteCodeInExecutionFile(lang string, typedCode string, functionName string, argsString string) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	filepath := fmt.Sprintf("%s\\docker\\runtimes\\%s\\app.%s", wd, progLang, fileExt)
+	filepath := fmt.Sprintf("%s\\docker\\runtimes\\%s\\app.%s", wd, lang, getFileExtension(lang))
 
 	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -19,7 +45,9 @@ func WriteFile(progLang string, fileExt string, typedCode string) error {
 	}
 	defer file.Close()
 
-	data := []byte(typedCode)
+	userCodeWithExecutionLines := typedCode + writeExecutionLines(lang, functionName, argsString)
+
+	data := []byte(userCodeWithExecutionLines)
 	_, err = file.Write(data)
 	if err != nil {
 		return err

@@ -5,21 +5,36 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs/editor/editor.main.min.css"
   />
 </head>
-<main class="">
-  <div class="flex">
-    <div class="flex-1 m-2 p-2 border-2 bg-gray-300">
+<main>
+  <div class="flex gap-1">
+    <div class="flex-1 my-2 ml-2 p-2 border-2 bg-gray-300">
       {{with .Problem}}
       <h1 class="font-bold text-2xl">{{.Title}}</h1>
       <div>{{.Content}}</div>
       {{end}}
     </div>
-    <div class="flex-1 m-2 p-2 border-2 bg-gray-300">
-      <div id="editor" style="height: 90%"></div>
-      <div class="float-right mt-2">
-        <button class="p-2 bg-color-4 rounded-lg" onclick="handleRunClick()">
+    <div class="flex-1 my-2 mr-2 p-2 border-2 bg-gray-300">
+      <div class="float-left">
+        {{with .Problem}}
+        <select id="code-snippets">
+          <option value="">Select Language</option>
+          {{range .CodeSnippets}}
+          <option value="{{.Lang}}">{{.Lang}}</option>
+          {{end}}
+        </select>
+        {{end}}
+      </div>
+      <div id="editor" class="mt-7" style="height: 85%"></div>
+      <div class="float-right flex gap-2 my-2">
+        <button
+          class="py-2 px-4 bg-color-4 rounded-lg"
+          onclick="handleRunClick()"
+        >
           Run
         </button>
-        <button class="p-2 bg-color-3 rounded-lg text-white">Submit</button>
+        <button class="py-2 px-4 bg-color-3 rounded-lg text-white">
+          Submit
+        </button>
       </div>
     </div>
   </div>
@@ -29,9 +44,10 @@
   {{ . }}
 </script>
 <script>
-  let editor;
   var jsonDataElement = document.getElementById("jsonData");
-  var data = JSON.parse(jsonDataElement.textContent);
+  var templateData = JSON.parse(jsonDataElement.textContent);
+  let editor;
+  let codeSnippet;
 
   require.config({
     paths: {
@@ -40,7 +56,6 @@
   });
 
   require(["vs/editor/editor.main"], function () {
-    // Initialize the Monaco Editor
     editor = monaco.editor.create(document.getElementById("editor"), {
       value: `function test(){\n\tconsole.log("Hello, Monaco Editor!");\n}`,
       language: "javascript",
@@ -52,11 +67,22 @@
     fetch("/problems/run", {
       method: "POST",
       body: JSON.stringify({
-        problem_id: data.Problem.ID,
+        problem_id: templateData.Problem.ID,
+        lang: codeSnippet.LangSlug,
         typed_code: editor.getValue(),
-        lang: "javascript",
       }),
     });
   }
+
+  document
+    .getElementById("code-snippets")
+    .addEventListener("change", function (e) {
+      templateData.Problem.CodeSnippets.forEach((c) => {
+        if (c.Lang === e.target.value) {
+          codeSnippet = c;
+        }
+      });
+      editor.getModel().setValue(codeSnippet.Code);
+    });
 </script>
 {{end}}
