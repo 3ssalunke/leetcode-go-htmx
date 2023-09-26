@@ -7,6 +7,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/3ssalunke/leetcode-clone/controllers"
@@ -171,7 +173,7 @@ func (server *Server) TestAndVerfiyUserCode(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	for _, value := range problems[0].TestCaseList {
+	for i, value := range problems[0].TestCaseList {
 		err = util.WriteCodeInExecutionFile(requestData.Lang, requestData.TypedCode, problems[0].SolutionName, value)
 
 		if err != nil {
@@ -180,9 +182,19 @@ func (server *Server) TestAndVerfiyUserCode(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		if err = util.ExecuteCode(ctx, requestData.Lang); err != nil {
+		output, err := util.ExecuteCode(ctx, requestData.Lang)
+		if err != nil {
+			log.Printf("failed to execute the code - %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
+		}
+
+		output = strings.ReplaceAll(output, " ", "")
+
+		if !reflect.DeepEqual([]byte(output), []byte(problems[0].TestCaseAnswers[i])) {
+			log.Printf("test case %d failed", i)
+		} else {
+			log.Printf("test case %d passed", i)
 		}
 	}
 

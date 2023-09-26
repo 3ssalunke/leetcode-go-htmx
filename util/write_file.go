@@ -23,9 +23,9 @@ func writeExecutionLines(lang string, functionName string, testCase string) stri
 
 	switch lang {
 	case "javascript":
-		return fmt.Sprintf("\n\n\n%s(%s)", functionName, argsString)
+		return fmt.Sprintf("\n\n\nconsole.log(%s(%s))", functionName, argsString)
 	case "python":
-		return fmt.Sprintf("\n\n\nc=Solution()\nc.%s(%s)", functionName, argsString)
+		return fmt.Sprintf("\n\n\nc=Solution()\nprint(c.%s(%s))", functionName, argsString)
 	default:
 		return ""
 	}

@@ -10,14 +10,15 @@ import (
 )
 
 type ProblemWithDetails struct {
-	ID           primitive.ObjectID `bson:"_id"`
-	Title        string             `bson:"title"`
-	Slug         string             `bson:"slug"`
-	DetailsID    primitive.ObjectID `bson:"details_id"`
-	Content      string             `bson:"content"`
-	TestCaseList []string           `bson:"test_case_list"`
-	CodeSnippets []db.CodeSnippet   `bson:"code_snippets"`
-	SolutionName string             `bson:"solution_name"`
+	ID              primitive.ObjectID `bson:"_id"`
+	Title           string             `bson:"title"`
+	Slug            string             `bson:"slug"`
+	DetailsID       primitive.ObjectID `bson:"details_id"`
+	Content         string             `bson:"content"`
+	TestCaseList    []string           `bson:"test_case_list"`
+	TestCaseAnswers []string           `bson:"test_case_answers"`
+	CodeSnippets    []db.CodeSnippet   `bson:"code_snippets"`
+	SolutionName    string             `bson:"solution_name"`
 }
 
 func GetProblems(ctx context.Context, database db.Database, userId primitive.ObjectID) ([]db.Problem, error) {
@@ -129,6 +130,7 @@ func GetProblemDetailsByProblemID(ctx context.Context, database db.Database, pro
 					{Key: "details_id", Value: "$details._id"},
 					{Key: "content", Value: "$details.content"},
 					{Key: "test_case_list", Value: "$details.test_case_list"},
+					{Key: "test_case_answers", Value: "$details.test_case_answers"},
 					{Key: "code_snippets", Value: "$details.code_snippets"},
 					{Key: "solution_name", Value: "$details.solution_name"},
 				},

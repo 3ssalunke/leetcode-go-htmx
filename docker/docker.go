@@ -61,10 +61,7 @@ func (client *DockerClient) RemoveDockerImage(ctx context.Context, imageTag stri
 
 func (client *DockerClient) RunDockerContainer(ctx context.Context, imageTag string) (*container.CreateResponse, error) {
 	containerConfig := &container.Config{
-		Image:        imageTag,
-		Tty:          true,
-		AttachStdout: true,
-		AttachStderr: true,
+		Image: imageTag,
 	}
 
 	container, err := client.Client.ContainerCreate(ctx, containerConfig, nil, nil, nil, "")
@@ -95,7 +92,7 @@ func (client *DockerClient) GetContainerLogs(ctx context.Context, containerID st
 		ShowStderr: true,
 		ShowStdout: true,
 		Timestamps: false,
-		Follow:     true,
+		Follow:     false,
 		Tail:       "40",
 	}
 
