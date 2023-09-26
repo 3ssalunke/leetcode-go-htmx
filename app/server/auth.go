@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone/controllers"
-	"github.com/3ssalunke/leetcode-clone/db"
-	"github.com/3ssalunke/leetcode-clone/middleware"
-	"github.com/3ssalunke/leetcode-clone/util"
+	"github.com/3ssalunke/leetcode-clone-app/controllers"
+	"github.com/3ssalunke/leetcode-clone-app/db"
+	"github.com/3ssalunke/leetcode-clone-app/middleware"
+	"github.com/3ssalunke/leetcode-clone-app/util"
 )
 
 func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {

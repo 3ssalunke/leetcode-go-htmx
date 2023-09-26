@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/3ssalunke/leetcode-clone/db"
-	"github.com/3ssalunke/leetcode-clone/middleware"
-	"github.com/3ssalunke/leetcode-clone/util"
+	"github.com/3ssalunke/leetcode-clone-app/db"
+	"github.com/3ssalunke/leetcode-clone-app/middleware"
+	"github.com/3ssalunke/leetcode-clone-app/util"
 )
 
 func (server *Server) home(w http.ResponseWriter, r *http.Request) {

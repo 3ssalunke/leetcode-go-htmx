@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone/util"
+	"github.com/3ssalunke/leetcode-clone-app/util"
 )
 
 func NewMongoDatabase(config util.Config) Database {

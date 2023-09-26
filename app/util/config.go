@@ -12,6 +12,7 @@ type Config struct {
 	AppPort                 string `mapstructure:"APP_PORT"`
 	GoogleOAuthClientId     string `mapstructure:"GOOGLE_OAUTH_CLIENT_ID"`
 	GoogleOAuthClientSecret string `mapstructure:"GOOGLE_OAUTH_CLIENT_SECRET"`
+	RabbitMQHost            string `mapstructure:"RABBITMQ_HOST"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

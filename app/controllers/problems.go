@@ -3,7 +3,7 @@ package controllers
 import (
 	"context"
 
-	"github.com/3ssalunke/leetcode-clone/db"
+	"github.com/3ssalunke/leetcode-clone-app/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

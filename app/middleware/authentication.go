@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone/db"
-	"github.com/3ssalunke/leetcode-clone/token"
-	"github.com/3ssalunke/leetcode-clone/util"
+	"github.com/3ssalunke/leetcode-clone-app/db"
+	"github.com/3ssalunke/leetcode-clone-app/token"
+	"github.com/3ssalunke/leetcode-clone-app/util"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

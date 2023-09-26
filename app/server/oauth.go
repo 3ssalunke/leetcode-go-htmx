@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone/controllers"
+	"github.com/3ssalunke/leetcode-clone-app/controllers"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth/gothic"
 )

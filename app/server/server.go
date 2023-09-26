@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone/db"
-	"github.com/3ssalunke/leetcode-clone/middleware"
-	"github.com/3ssalunke/leetcode-clone/token"
-	"github.com/3ssalunke/leetcode-clone/util"
+	"github.com/3ssalunke/leetcode-clone-app/db"
+	"github.com/3ssalunke/leetcode-clone-app/middleware"
+	"github.com/3ssalunke/leetcode-clone-app/mq"
+	"github.com/3ssalunke/leetcode-clone-app/token"
+	"github.com/3ssalunke/leetcode-clone-app/util"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
@@ -20,6 +21,7 @@ type Server struct {
 	tokenMaker *token.TokenMaker
 	config     util.Config
 	Db         db.Database
+	Mq         *mq.RabbitMQ
 }
 
 func NewServer() *Server {
@@ -35,12 +37,23 @@ func NewServer() *Server {
 		log.Fatalf("failed to create token maker - %v", err)
 	}
 
+	rabbitmq, err := mq.NewRabbitMQ(config)
+	if err != nil {
+		log.Fatalf("failed to make connection to rabbitmq server - %v", err)
+	}
+
+	err = rabbitmq.CreateChannel()
+	if err != nil {
+		log.Fatalf("failed to create channel to rabbitmq server - %v", err)
+	}
+
 	server.WriteTimeout = 15 * time.Second
 	server.ReadTimeout = 15 * time.Second
 	server.config = config
 	server.Db = db.NewMongoDatabase(config)
 	server.tokenMaker = tokenMaker
 	server.Handler = server.setupRoutes()
+	server.Mq = rabbitmq
 
 	return server
 }
@@ -75,7 +88,7 @@ func (server *Server) setupRoutes() *mux.Router {
 
 	r.HandleFunc("/problemset/all", server.ProblemsAll).Methods("GET")
 	r.HandleFunc("/problems/{problem}", server.Problem).Methods("GET")
-	r.HandleFunc("/problems/run", server.TestAndVerfiyUserCode).Methods("POST")
+	r.HandleFunc("/problems/run", server.RunCode).Methods("POST")
 
 	return r
 }
