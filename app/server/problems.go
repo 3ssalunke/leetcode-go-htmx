@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -153,5 +154,13 @@ type CodeRunRequest struct {
 }
 
 func (server *Server) RunCode(w http.ResponseWriter, r *http.Request) {
+	requestPayloadBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("failed to read the request payload - %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	requestPayloadString := string(requestPayloadBytes)
+	server.Mq.PublishMessage(server.config.RabbitMQQueueName, requestPayloadString)
 	w.WriteHeader(http.StatusOK)
 }

@@ -47,6 +47,11 @@ func NewServer() *Server {
 		log.Fatalf("failed to create channel to rabbitmq server - %v", err)
 	}
 
+	err = rabbitmq.DeclareQueue(config.RabbitMQQueueName)
+	if err != nil {
+		log.Fatalf("failed to declare a rabbitmq queue - %v", err)
+	}
+
 	server.WriteTimeout = 15 * time.Second
 	server.ReadTimeout = 15 * time.Second
 	server.config = config

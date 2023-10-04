@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	log.Println("Let's Get Started!!")
+	log.Println("starting app!!")
 	server := server.NewServer()
 	defer db.CloseMongoDbConnection(server.Db.Client())
 	defer server.Mq.Conn.Close()

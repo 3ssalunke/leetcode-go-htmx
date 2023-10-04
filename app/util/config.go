@@ -13,6 +13,7 @@ type Config struct {
 	GoogleOAuthClientId     string `mapstructure:"GOOGLE_OAUTH_CLIENT_ID"`
 	GoogleOAuthClientSecret string `mapstructure:"GOOGLE_OAUTH_CLIENT_SECRET"`
 	RabbitMQHost            string `mapstructure:"RABBITMQ_HOST"`
+	RabbitMQQueueName       string `mapstructure:"RABBITMQ_QUEUE_NAME"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

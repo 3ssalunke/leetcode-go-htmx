@@ -3,7 +3,7 @@ package mq
 import (
 	"log"
 
-	"github.com/3ssalunke/leetcode-clone-app/util"
+	"github.com/3ssalunke/leetcode-clone-exen/util"
 	"github.com/streadway/amqp"
 )
 
@@ -38,7 +38,19 @@ func (mq *RabbitMQ) DeclareQueue(name string) error {
 	return err
 }
 
-func (mq *RabbitMQ) PublishMessage(queueName string, message string) error {
-	err := mq.Channel.Publish("", queueName, false, false, amqp.Publishing{ContentType: "application/json", Body: []byte(message)})
-	return err
+func (mq *RabbitMQ) Consume(queueName string) error {
+	msgs, err := mq.Channel.Consume(queueName, "", false, false, false, false, nil)
+	if err != nil {
+		log.Fatalf("failed to setup a consumer - %v", err)
+	}
+
+	for msg := range msgs {
+		log.Printf("Received a message: %s", msg.Body)
+
+		if err := msg.Ack(false); err != nil {
+			log.Printf("Failed to acknowledge message: %v", err)
+		}
+	}
+
+	return nil
 }
