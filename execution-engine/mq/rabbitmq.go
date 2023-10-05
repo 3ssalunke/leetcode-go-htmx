@@ -38,19 +38,7 @@ func (mq *RabbitMQ) DeclareQueue(name string) error {
 	return err
 }
 
-func (mq *RabbitMQ) Consume(queueName string) error {
-	msgs, err := mq.Channel.Consume(queueName, "", false, false, false, false, nil)
-	if err != nil {
-		log.Fatalf("failed to setup a consumer - %v", err)
-	}
+func (mq *RabbitMQ) Consume(queueName string) (<-chan amqp.Delivery, error) {
+	return mq.Channel.Consume(queueName, "", false, false, false, false, nil)
 
-	for msg := range msgs {
-		log.Printf("Received a message: %s", msg.Body)
-
-		if err := msg.Ack(false); err != nil {
-			log.Printf("Failed to acknowledge message: %v", err)
-		}
-	}
-
-	return nil
 }

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone-app/controllers"
+	"github.com/3ssalunke/leetcode-clone-app/services"
 	"github.com/gorilla/mux"
 	"github.com/markbates/goth/gothic"
 )
@@ -30,7 +30,7 @@ func (server *Server) oAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = controllers.OAuthSignUp(ctx, server.Db, user)
+	err = services.OAuthSignUp(ctx, server.Db, user)
 	if err != nil {
 		log.Printf("failed to store oauth user in db - %v", err)
 	}

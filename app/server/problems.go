@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone-app/controllers"
 	"github.com/3ssalunke/leetcode-clone-app/db"
 	"github.com/3ssalunke/leetcode-clone-app/middleware"
+	"github.com/3ssalunke/leetcode-clone-app/services"
 	"github.com/3ssalunke/leetcode-clone-app/util"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -58,7 +58,7 @@ func (server *Server) ProblemsAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	problems, err := controllers.GetProblems(ctx, server.Db, user.ID)
+	problems, err := services.GetProblems(ctx, server.Db, user.ID)
 	if err != nil {
 		log.Printf("failed to fetch problems - %v", err)
 	}
@@ -104,7 +104,7 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 		data.User = &user
 	}
 
-	problems, err := controllers.GetProblemBySlug(ctx, server.Db, problemSlug, user.ID)
+	problems, err := services.GetProblemBySlug(ctx, server.Db, problemSlug, user.ID)
 	if err != nil {
 		log.Printf("failed to fetch details for problem with slug %s - %v", problemSlug, err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -147,12 +147,6 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, data)
 }
 
-type CodeRunRequest struct {
-	ProblemID string `json:"problem_id"`
-	TypedCode string `json:"typed_code"`
-	Lang      string `json:"lang"`
-}
-
 func (server *Server) RunCode(w http.ResponseWriter, r *http.Request) {
 	requestPayloadBytes, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -161,6 +155,9 @@ func (server *Server) RunCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	requestPayloadString := string(requestPayloadBytes)
-	server.Mq.PublishMessage(server.config.RabbitMQQueueName, requestPayloadString)
+	if err := server.Mq.PublishMessage(server.config.RabbitMQQueueName, requestPayloadString); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }

@@ -18,8 +18,8 @@ import (
 
 type Server struct {
 	http.Server
-	tokenMaker *token.TokenMaker
 	config     util.Config
+	tokenMaker *token.TokenMaker
 	Db         db.Database
 	Mq         *mq.RabbitMQ
 }

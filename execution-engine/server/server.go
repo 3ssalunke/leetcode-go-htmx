@@ -42,5 +42,19 @@ func NewServer() *Server {
 }
 
 func (server *Server) StartExecutionEngine() error {
-	return server.Mq.Consume(server.config.RabbitMQQueueName)
+	msgs, err := server.Mq.Consume(server.config.RabbitMQQueueName)
+	if err != nil {
+		log.Fatalf("failed to setup a consumer - %v", err)
+	}
+
+	for msg := range msgs {
+		if err := server.ProcessMessage(msg); err != nil {
+			log.Printf("Failed to process message: %v", err)
+		}
+		if err := msg.Ack(false); err != nil {
+			log.Printf("Failed to acknowledge message: %v", err)
+		}
+	}
+
+	return nil
 }

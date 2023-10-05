@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/3ssalunke/leetcode-clone-app/controllers"
 	"github.com/3ssalunke/leetcode-clone-app/db"
 	"github.com/3ssalunke/leetcode-clone-app/middleware"
+	"github.com/3ssalunke/leetcode-clone-app/services"
 	"github.com/3ssalunke/leetcode-clone-app/util"
 )
 
@@ -55,7 +55,7 @@ func (server *Server) signIn(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, data)
 		return
 	} else {
-		user, err := controllers.SignIn(ctx, server.Db, r)
+		user, err := services.SignIn(ctx, server.Db, r)
 		if err != nil {
 			data := struct {
 				Status  int
@@ -125,7 +125,7 @@ func (server *Server) signUp(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, data)
 		return
 	} else {
-		user, err := controllers.SignUp(ctx, server.Db, r)
+		user, err := services.SignUp(ctx, server.Db, r)
 		if err != nil {
 			data := struct {
 				Status  int
