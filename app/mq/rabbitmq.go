@@ -38,7 +38,7 @@ func (mq *RabbitMQ) DeclareQueue(name string) error {
 	return err
 }
 
-func (mq *RabbitMQ) PublishMessage(queueName string, message string) error {
-	err := mq.Channel.Publish("", queueName, false, false, amqp.Publishing{ContentType: "application/json", Body: []byte(message)})
+func (mq *RabbitMQ) PublishMessage(queueName string, message []byte) error {
+	err := mq.Channel.Publish("", queueName, false, false, amqp.Publishing{ContentType: "application/octet-stream", Body: []byte(message)})
 	return err
 }

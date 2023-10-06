@@ -11,13 +11,13 @@ import (
 func (server *Server) ProcessMessage(msg amqp.Delivery) error {
 	log.Printf("Received a message: %s", msg.Body)
 
-	var payload *services.ExecutionPayload
-	err := json.Unmarshal(msg.Body, payload)
+	var payload services.ProblemDetails
+	err := json.Unmarshal(msg.Body, &payload)
 	if err != nil {
 		return err
 	}
 
-	_, err = services.ExecuteCode(payload)
+	err = services.ExecuteCode(&payload)
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -147,15 +148,49 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, data)
 }
 
-func (server *Server) RunCode(w http.ResponseWriter, r *http.Request) {
+type ExecutionRequestPayload struct {
+	ProblemId    string   `json:"problem_id"`
+	Lang         string   `json:"lang"`
+	TypedCode    string   `json:"typed_code"`
+	FunctionName string   `json:"function_name"`
+	TestCases    []string `json:"test_cases"`
+}
+
+func (server *Server) StartExecution(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	requestPayloadBytes, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("failed to read the request payload - %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	requestPayloadString := string(requestPayloadBytes)
-	if err := server.Mq.PublishMessage(server.config.RabbitMQQueueName, requestPayloadString); err != nil {
+	var requestPayload ExecutionRequestPayload
+	if err := json.Unmarshal(requestPayloadBytes, &requestPayload); err != nil {
+		log.Printf("failed to get parse request payload- %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	problemDetails, err := services.GetProblemDetailsByProblemID(ctx, server.Db, requestPayload.ProblemId)
+	if err != nil {
+		log.Printf("failed to get problem details for problem with id %s - %v", requestPayload.ProblemId, err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	requestPayload.FunctionName = problemDetails[0].SolutionName
+	requestPayload.TestCases = problemDetails[0].TestCaseList
+
+	requestPayloadBytes, err = json.Marshal(requestPayload)
+	if err != nil {
+		log.Printf("failed to get convert payload to json string- %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := server.Mq.PublishMessage(server.config.RabbitMQQueueName, requestPayloadBytes); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

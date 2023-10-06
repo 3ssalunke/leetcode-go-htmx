@@ -9,21 +9,29 @@ import (
 	"time"
 
 	"github.com/3ssalunke/leetcode-clone-exen/docker"
+	"github.com/3ssalunke/leetcode-clone-exen/util"
 )
 
-type ExecutionPayload struct {
-	ProblemId string `json:"problem_id"`
-	Lang      string `json:"lang"`
-	TypedCode string `json:"typed_code"`
+type ProblemDetails struct {
+	ProblemId    string   `json:"problem_id"`
+	Lang         string   `json:"lang"`
+	TypedCode    string   `json:"typed_code"`
+	FunctionName string   `json:"function_name"`
+	TestCases    []string `json:"test_cases"`
 }
 
-func ExecuteCode(payload *ExecutionPayload) (string, error) {
+func ExecuteCode(payload *ProblemDetails) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
+	err := util.WriteCodeInExecutionFile(payload.Lang, payload.TypedCode, "", "")
+	if err != nil {
+		return err
+	}
+
 	dockerClient, err := docker.NewDockerClient()
 	if err != nil {
-		return "", fmt.Errorf("failed to create docker client - %w", err)
+		return fmt.Errorf("failed to create docker client - %w", err)
 	}
 	defer dockerClient.Client.Close()
 
@@ -31,20 +39,20 @@ func ExecuteCode(payload *ExecutionPayload) (string, error) {
 
 	image, err := dockerClient.CreateDockerImage(ctx, payload.Lang, dockerImageTag)
 	if err != nil {
-		return "", fmt.Errorf("failed to create docker image - %w", err)
+		return fmt.Errorf("failed to create docker image - %w", err)
 	}
 	defer image.Body.Close()
 	log.Println("docker image created successfully.")
 
 	container, err := dockerClient.RunDockerContainer(ctx, dockerImageTag)
 	if err != nil {
-		return "", fmt.Errorf("failed to run docker container - %w", err)
+		return fmt.Errorf("failed to run docker container - %w", err)
 	}
 	log.Println("docker container started successfully.")
 
 	logs, err := dockerClient.GetContainerLogs(ctx, container.ID)
 	if err != nil {
-		return "", fmt.Errorf("failed to get docker container logs - %w", err)
+		return fmt.Errorf("failed to get docker container logs - %w", err)
 	}
 	defer logs.Close()
 
@@ -52,15 +60,15 @@ func ExecuteCode(payload *ExecutionPayload) (string, error) {
 	io.Copy(&logBuffer, logs)
 
 	if err = dockerClient.RemoveDockerContainer(ctx, container.ID); err != nil {
-		return "", fmt.Errorf("failed to remove docker container - %w", err)
+		return fmt.Errorf("failed to remove docker container - %w", err)
 	}
 	log.Println("container removed successfully.")
 
 	if err = dockerClient.RemoveDockerImage(ctx, dockerImageTag); err != nil {
-		return "", fmt.Errorf("failed to remove docker image - %w", err)
+		return fmt.Errorf("failed to remove docker image - %w", err)
 	}
 
-	log.Println("image removed successfully.")
+	log.Println("image removed successfully.", logBuffer.String())
 
-	return logBuffer.String(), err
+	return err
 }
