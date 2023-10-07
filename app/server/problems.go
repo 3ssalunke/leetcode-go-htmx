@@ -154,6 +154,7 @@ type ExecutionRequestPayload struct {
 	TypedCode    string   `json:"typed_code"`
 	FunctionName string   `json:"function_name"`
 	TestCases    []string `json:"test_cases"`
+	TestAnswers  []string `json:"test_answers"`
 }
 
 func (server *Server) StartExecution(w http.ResponseWriter, r *http.Request) {
@@ -182,6 +183,7 @@ func (server *Server) StartExecution(w http.ResponseWriter, r *http.Request) {
 
 	requestPayload.FunctionName = problemDetails[0].SolutionName
 	requestPayload.TestCases = problemDetails[0].TestCaseList
+	requestPayload.TestAnswers = problemDetails[0].TestCaseAnswers
 
 	requestPayloadBytes, err = json.Marshal(requestPayload)
 	if err != nil {
@@ -191,6 +193,7 @@ func (server *Server) StartExecution(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := server.Mq.PublishMessage(server.config.RabbitMQQueueName, requestPayloadBytes); err != nil {
+		log.Printf("failed to publish the message to queue - %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
