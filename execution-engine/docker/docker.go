@@ -92,8 +92,8 @@ func (client *DockerClient) GetContainerLogs(ctx context.Context, containerID st
 		ShowStderr: true,
 		ShowStdout: true,
 		Timestamps: false,
-		Follow:     false,
-		Tail:       "40",
+		Follow:     true,
+		Tail:       "all",
 	}
 
 	reader, err := client.Client.ContainerLogs(ctx, containerID, logOptions)

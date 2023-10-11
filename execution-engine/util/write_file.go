@@ -17,21 +17,33 @@ func getFileExtension(lang string) string {
 	}
 }
 
-func writeExecutionLines(lang string, functionName string, testCase string) string {
+func getFunctionArgString(testCase string) string {
 	argsArray := strings.Split(testCase, "\n")
-	args := strings.Join(argsArray, ", ")
+	return strings.Join(argsArray, ", ")
+}
 
+func writeExecutionLines(lang string, functionName string, testCases []string) string {
 	switch lang {
 	case "javascript":
-		return fmt.Sprintf("\n\n\nconsole.log(%s(%s))", functionName, args)
+		executionLine := ""
+		for _, testCase := range testCases {
+			args := getFunctionArgString(testCase)
+			executionLine = executionLine + fmt.Sprintf("\nconsole.log(%s(%s))", functionName, args)
+		}
+		return executionLine
 	case "python":
-		return fmt.Sprintf("\n\n\nc=Solution()\nprint(c.%s(%s))", functionName, args)
+		executionLine := ""
+		for _, testCase := range testCases {
+			args := getFunctionArgString(testCase)
+			executionLine = executionLine + fmt.Sprintf("\nc=Solution()\nprint(c.%s(%s))", functionName, args)
+		}
+		return executionLine
 	default:
 		return ""
 	}
 }
 
-func WriteCodeInExecutionFile(lang string, typedCode string, functionName string, args string) error {
+func WriteCodeInExecutionFile(lang string, typedCode string, functionName string, testCases []string) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -45,7 +57,7 @@ func WriteCodeInExecutionFile(lang string, typedCode string, functionName string
 	}
 	defer file.Close()
 
-	userCodeWithExecutionLines := typedCode + writeExecutionLines(lang, functionName, args)
+	userCodeWithExecutionLines := typedCode + writeExecutionLines(lang, functionName, testCases)
 
 	data := []byte(userCodeWithExecutionLines)
 	_, err = file.Write(data)
