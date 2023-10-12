@@ -9,6 +9,7 @@ import (
 	"github.com/3ssalunke/leetcode-clone-app/db"
 	"github.com/3ssalunke/leetcode-clone-app/middleware"
 	"github.com/3ssalunke/leetcode-clone-app/mq"
+	"github.com/3ssalunke/leetcode-clone-app/redis"
 	"github.com/3ssalunke/leetcode-clone-app/token"
 	"github.com/3ssalunke/leetcode-clone-app/util"
 	"github.com/gorilla/mux"
@@ -22,6 +23,7 @@ type Server struct {
 	tokenMaker *token.TokenMaker
 	Db         db.Database
 	Mq         *mq.RabbitMQ
+	Redis      *redis.RedisClient
 }
 
 func NewServer() *Server {
@@ -41,6 +43,7 @@ func NewServer() *Server {
 	if err != nil {
 		log.Fatalf("failed to make connection to rabbitmq server - %v", err)
 	}
+	log.Println("rabbitmq connection established")
 
 	err = rabbitmq.CreateChannel()
 	if err != nil {
@@ -52,6 +55,13 @@ func NewServer() *Server {
 		log.Fatalf("failed to declare a rabbitmq queue - %v", err)
 	}
 
+	redisClient := redis.NewRedisClient(config)
+	_, err = redisClient.Ping()
+	if err != nil {
+		log.Fatalf("failed to make connection to redis client - %v", err)
+	}
+	log.Println("redis client connection established")
+
 	server.WriteTimeout = 15 * time.Second
 	server.ReadTimeout = 15 * time.Second
 	server.config = config
@@ -59,6 +69,7 @@ func NewServer() *Server {
 	server.tokenMaker = tokenMaker
 	server.Handler = server.setupRoutes()
 	server.Mq = rabbitmq
+	server.Redis = redisClient
 
 	return server
 }

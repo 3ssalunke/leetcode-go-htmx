@@ -7,16 +7,17 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/markbates/goth v1.78.0
-	github.com/spf13/viper v1.16.0
+	github.com/spf13/viper v1.10.1
 	github.com/streadway/amqp v1.1.0
 	go.mongodb.org/mongo-driver v1.12.1
 	golang.org/x/crypto v0.13.0
 )
 
 require (
-	cloud.google.com/go/compute v1.19.0 // indirect
-	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/compute v1.9.0 // indirect
+	cloud.google.com/go/compute/metadata v0.2.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gorilla/context v1.1.1 // indirect

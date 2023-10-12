@@ -10,5 +10,6 @@ func main() {
 	log.Println("starting execution engine!!")
 	server := server.NewServer()
 	defer server.Mq.Conn.Close()
+	defer server.Redis.Client.Close()
 	log.Fatal(server.StartExecutionEngine())
 }

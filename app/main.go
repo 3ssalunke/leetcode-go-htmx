@@ -12,5 +12,6 @@ func main() {
 	server := server.NewServer()
 	defer db.CloseMongoDbConnection(server.Db.Client())
 	defer server.Mq.Conn.Close()
+	defer server.Redis.Client.Close()
 	log.Fatal(server.Start("127.0.0.1"))
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/3ssalunke/leetcode-clone-app/middleware"
 	"github.com/3ssalunke/leetcode-clone-app/services"
 	"github.com/3ssalunke/leetcode-clone-app/util"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -149,6 +150,7 @@ func (server *Server) Problem(w http.ResponseWriter, r *http.Request) {
 }
 
 type ExecutionRequestPayload struct {
+	ExecutionId  string   `json:"execution_id"`
 	ProblemId    string   `json:"problem_id"`
 	Lang         string   `json:"lang"`
 	TypedCode    string   `json:"typed_code"`
@@ -184,6 +186,8 @@ func (server *Server) StartExecution(w http.ResponseWriter, r *http.Request) {
 	requestPayload.FunctionName = problemDetails[0].SolutionName
 	requestPayload.TestCases = problemDetails[0].TestCaseList
 	requestPayload.TestAnswers = problemDetails[0].TestCaseAnswers
+	executionId := uuid.New()
+	requestPayload.ExecutionId = executionId.String()
 
 	requestPayloadBytes, err = json.Marshal(requestPayload)
 	if err != nil {
@@ -197,5 +201,15 @@ func (server *Server) StartExecution(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	data := struct {
+		ExecutionId string `json:"execution_id"`
+	}{ExecutionId: executionId.String()}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

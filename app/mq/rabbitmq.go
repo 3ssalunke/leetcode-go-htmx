@@ -15,11 +15,7 @@ type RabbitMQ struct {
 func NewRabbitMQ(config util.Config) (*RabbitMQ, error) {
 	rabbitMQAddr := config.RabbitMQHost
 	conn, err := amqp.Dial(rabbitMQAddr)
-	if err != nil {
-		return nil, err
-	}
-	log.Println("rabbitmq connection established")
-	return &RabbitMQ{Conn: conn}, nil
+	return &RabbitMQ{Conn: conn}, err
 }
 
 func (mq *RabbitMQ) CreateChannel() error {
