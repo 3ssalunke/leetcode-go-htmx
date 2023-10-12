@@ -1,1 +1,1 @@
-This is LeetCode clone using GO+HTMX+MONGO+RabbitMQ.
+This is LeetCode clone using GO+HTMX+MONGO+RabbitMQ+Redis+Docker.
