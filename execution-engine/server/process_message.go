@@ -15,6 +15,7 @@ func (server *Server) ProcessMessage(msg amqp.Delivery) {
 		log.Printf("failed to parse message json %v", err)
 		return
 	}
+	log.Print("execution id", payload.ExecutionId)
 
 	if err := server.Redis.SetValue(payload.ExecutionId, "processing"); err != nil {
 		log.Printf("execution id: %s, failed to set value in redis cache - %v", payload.ExecutionId, err)

@@ -105,6 +105,7 @@ func (server *Server) setupRoutes() *mux.Router {
 	r.HandleFunc("/problemset/all", server.ProblemsAll).Methods("GET")
 	r.HandleFunc("/problems/{problem}", server.Problem).Methods("GET")
 	r.HandleFunc("/problems/run", server.StartExecution).Methods("POST")
+	r.HandleFunc("/problems/status/{execution_id}", server.GetStatus).Methods("GET")
 
 	return r
 }

@@ -213,3 +213,26 @@ func (server *Server) StartExecution(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (server *Server) GetStatus(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	execution_id := vars["execution_id"]
+
+	status, err := server.Redis.GetValue(execution_id)
+	if err != nil {
+		log.Printf("failed to retrieve the status of execution id %s with error %v", execution_id, err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	data := struct {
+		Status string `json:"status"`
+	}{Status: status}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}

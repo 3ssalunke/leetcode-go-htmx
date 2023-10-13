@@ -58,7 +58,6 @@ func (server *Server) StartExecutionEngine() error {
 	}
 
 	for msg := range msgs {
-		log.Printf("Received a message: %s", msg.Body)
 		go server.ProcessMessage(msg)
 
 		if err := msg.Ack(false); err != nil {
